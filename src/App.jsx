@@ -3,25 +3,66 @@ import { AlertTriangle, Users, TrendingUp, Award, ArrowRight, Utensils, HandHear
 
 const App = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  const navItems = ['Home', 'About', 'Get Involved', 'Contact'];
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setActiveSection(sectionId);
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Food Blessed',
+        text: 'Join us in reducing food waste and feeding communities!',
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      alert('Check us out on social media @FoodBlessed!');
+    }
+  };
+
+  const handleJoinMovement = () => {
+    // Scroll to Get Involved section
+    scrollToSection('get-involved');
+  };
+
+  const navItems = [
+    { id: 'home', label: 'Home' },
+    { id: 'impact', label: 'Impact' },
+    { id: 'psychology', label: 'Psychology' },
+    { id: 'get-involved', label: 'Get Involved' },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm fixed w-full top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="text-xl font-bold text-green-700">FoodBlessed</div>
+            <div
+              className="text-xl font-bold text-green-700 cursor-pointer"
+              onClick={() => scrollToSection('home')}
+            >
+              FoodBlessed
+            </div>
             <div className="hidden md:flex space-x-8">
               {navItems.map((item) => (
-                <a key={item} href="#" className="text-gray-600 hover:text-green-700 transition-colors">
-                  {item}
-                </a>
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`text-gray-600 hover:text-green-700 transition-colors ${activeSection === item.id ? 'text-green-700 font-semibold' : ''
+                    }`}
+                >
+                  {item.label}
+                </button>
               ))}
             </div>
           </div>
@@ -29,7 +70,7 @@ const App = () => {
       </nav>
 
       {/* Hero Section */}
-      <header className={`px-4 py-16 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <header id="home" className={`px-4 pt-32 pb-16 text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         <h1 className="text-4xl md:text-6xl font-bold text-green-800 mb-4">
           Food Blessed
         </h1>
@@ -41,14 +82,17 @@ const App = () => {
             <AlertTriangle className="text-red-500 flex-shrink-0" />
             <p className="text-red-700">Over 50% of edible food in Canada is wasted each year</p>
           </div>
-          <button className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl">
+          <button
+            onClick={handleJoinMovement}
+            className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl"
+          >
             Join The Movement
           </button>
         </div>
       </header>
 
       {/* Impact Stats */}
-      <section className="px-4 py-12 bg-white">
+      <section id="impact" className="px-4 py-12 bg-white">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
           <StatsCard
             icon={<Users className="w-12 h-12 text-green-600" />}
@@ -69,7 +113,7 @@ const App = () => {
       </section>
 
       {/* Psychology Principles */}
-      <section className="px-4 py-16 bg-green-50">
+      <section id="psychology" className="px-4 py-16 bg-green-50">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-green-800">The Psychology Behind Food Blessed</h2>
           <div className="grid md:grid-cols-2 gap-8">
@@ -98,7 +142,7 @@ const App = () => {
       </section>
 
       {/* Get Involved */}
-      <section className="px-4 py-16 bg-white">
+      <section id="get-involved" className="px-4 py-16 bg-white">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12 text-green-800">How You Can Help</h2>
           <div className="space-y-6">
@@ -106,16 +150,19 @@ const App = () => {
               icon={<Utensils className="w-8 h-8 text-green-600" />}
               title="Donate Food"
               description="Restaurants, grocers, and individuals can sign up to donate surplus food"
+              onClick={() => window.open('mailto:info@foodblessed.org?subject=Food Donation Inquiry')}
             />
             <ActionCard
               icon={<HandHeart className="w-8 h-8 text-green-600" />}
               title="Volunteer"
               description="Help with food pickups, deliveries, or community outreach"
+              onClick={() => window.open('mailto:info@foodblessed.org?subject=Volunteer Inquiry')}
             />
             <ActionCard
               icon={<Share2 className="w-8 h-8 text-green-600" />}
               title="Spread the Word"
               description="Share this initiative using #FoodBlessed"
+              onClick={handleShare}
             />
           </div>
         </div>
@@ -126,7 +173,10 @@ const App = () => {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-4">Ready to Make a Difference?</h2>
           <p className="text-xl mb-8 text-green-100">Join us in creating a more sustainable Toronto</p>
-          <button className="bg-white text-green-800 px-8 py-3 rounded-lg font-semibold hover:bg-green-100 transition-colors shadow-lg">
+          <button
+            onClick={() => window.open('mailto:info@foodblessed.org')}
+            className="bg-white text-green-800 px-8 py-3 rounded-lg font-semibold hover:bg-green-100 transition-colors shadow-lg"
+          >
             Get Started Now
           </button>
         </div>
@@ -135,7 +185,15 @@ const App = () => {
       {/* Footer */}
       <footer className="px-4 py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-gray-600">Follow us @FoodBlessed • Contact: info@foodblessed.org</p>
+          <p className="text-gray-600">
+            Follow us @FoodBlessed • Contact:
+            <a
+              href="mailto:info@foodblessed.org"
+              className="text-green-700 hover:text-green-800 ml-1"
+            >
+              info@foodblessed.org
+            </a>
+          </p>
         </div>
       </footer>
     </div>
@@ -160,8 +218,11 @@ const PsychologyCard = ({ title, description, bgColor }) => (
 );
 
 // Component for action cards
-const ActionCard = ({ icon, title, description }) => (
-  <div className="flex items-center gap-4 bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+const ActionCard = ({ icon, title, description, onClick }) => (
+  <div
+    onClick={onClick}
+    className="flex items-center gap-4 bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+  >
     <div className="flex-shrink-0">{icon}</div>
     <div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
